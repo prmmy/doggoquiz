@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ถ้าน้องหมาหลุดเข้าไปในซีรีส์ จะได้รับบทเป็นใคร?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #FDFBF7; 
+            --text-color: #533422; 
+            --primary-btn: #C2A878; 
+            --primary-btn-hover: #A68A64;
+            --card-bg: #FFFFFF;
+            --input-border: #E0D8C3;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            max-width: 500px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            display: none; 
+            box-sizing: border-box;
+        }
+
+        #result.container {
+            background-color: transparent;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { font-weight: 600; margin-bottom: 20px; font-size: 1.3rem; line-height: 1.5; color: var(--text-color); }
+        p { font-weight: 300; margin-bottom: 30px; line-height: 1.6; color: var(--text-color); }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 400; font-size: 0.95rem; }
+        
+        .input-field {
+            width: 100%; padding: 12px 15px; border: 2px solid var(--input-border);
+            border-radius: 12px; font-family: 'Prompt', sans-serif; font-size: 1rem;
+            color: var(--text-color); box-sizing: border-box; transition: border-color 0.3s;
+            background-color: #FFF;
+        }
+        .input-field:focus { outline: none; border-color: var(--primary-btn); }
+
+        .age-container { display: flex; gap: 10px; }
+        select.input-field { cursor: pointer; appearance: auto !important; }
+
+        input[type="range"] { width: 100%; accent-color: var(--primary-btn); margin-top: 10px; cursor: pointer; }
+
+        .file-upload {
+            border: 2px dashed var(--input-border); padding: 20px; text-align: center;
+            border-radius: 12px; cursor: pointer; margin-bottom: 20px; display: block;
+        }
+        .file-upload input[type="file"] { display: none; }
+        .preview-image { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; display: none; margin-top: 10px; }
+        .upload-success { color: #8F7B61; font-weight: 400; display: none; margin-top: 10px; font-size: 0.9rem; text-decoration: underline;}
+
+        .choice-btn {
+            display: block; width: 100%; background-color: var(--bg-color); color: var(--text-color);
+            border: 2px solid transparent; padding: 15px; margin-bottom: 15px; border-radius: 12px;
+            font-size: 1rem; font-family: 'Prompt', sans-serif; cursor: pointer; text-align: left;
+        }
+        .choice-btn:hover { border-color: var(--primary-btn); background-color: #FFF; }
+
+        .primary-btn {
+            background-color: var(--text-color); color: #FFF; border: none; padding: 15px 30px;
+            border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; 
+            width: 100%; margin-top: 10px; font-family: 'Prompt', sans-serif; display: inline-block; box-sizing: border-box; text-align: center; text-decoration: none;
+        }
+
+        .secondary-btn {
+            background-color: #FFF; color: var(--text-color); border: 2px solid var(--text-color); padding: 13px 30px;
+            border-radius: 12px; font-size: 1.05rem; font-weight: 600; cursor: pointer; 
+            width: 100%; margin-bottom: 15px; font-family: 'Prompt', sans-serif; display: inline-block; box-sizing: border-box; text-align: center;
+        }
+
+        #capture-area {
+            position: relative; background-color: #FDFBF7; padding: 50px 20px; display: flex; flex-direction: column;
+            align-items: center; gap: 20px; width: 100%; max-width: 450px; margin: 0 auto 25px auto; box-sizing: border-box;
+            overflow: hidden; border-radius: 20px;
+        }
+
+        .bg-dog-pattern {
+            position: absolute; font-size: 80px; opacity: 0.08; z-index: 1; pointer-events: none;
+        }
+        .pattern-1 { top: 5%; left: -5%; transform: rotate(-15deg); font-size: 100px; }
+        .pattern-2 { top: 15%; right: -5%; transform: rotate(20deg); font-size: 120px; }
+        .pattern-3 { bottom: 25%; left: -10%; transform: rotate(10deg); font-size: 110px; }
+        .pattern-4 { bottom: 5%; right: -5%; transform: rotate(-25deg); font-size: 90px; }
+
+        .result-box-1 {
+            background-color: #FFFFFF; border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 320px;
+            box-shadow: 0 10px 30px rgba(83, 52, 34, 0.06); position: relative; z-index: 2; text-align: center; box-sizing: border-box;
+        }
+        .result-box-1 .hole { width: 40px; height: 6px; background-color: #F0EBE1; border-radius: 10px; margin: 0 auto 20px; }
+        .result-box-1 .title-name { font-size: 1.1rem; font-weight: 300; margin-bottom: 5px; color: var(--text-color); }
+        .result-box-1 .title-role { font-size: 1.6rem; font-weight: 600; margin-bottom: 25px; color: var(--text-color); }
+        
+        .result-image-wrapper { position: relative; width: 100%; max-width: 220px; aspect-ratio: 1/1; margin: 0 auto; }
+        .result-image-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+        .result-image-wrapper .sticker { position: absolute; bottom: -15px; right: -15px; font-size: 45px; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.1)); }
+
+        .result-box-2 {
+            background-color: #FFFFFF; border-radius: 16px; padding: 25px 20px; width: 100%; max-width: 320px;
+            box-shadow: 0 8px 25px rgba(83, 52, 34, 0.04); position: relative; z-index: 2; text-align: center;
+            font-size: 1.05rem; line-height: 1.7; color: var(--text-color); box-sizing: border-box;
+        }
+
+        .result-box-3 {
+            background-color: #F1ECE3; border-radius: 16px; padding: 20px; width: 100%; max-width: 320px;
+            position: relative; z-index: 2; text-align: center; font-size: 1.05rem; color: var(--text-color); box-sizing: border-box;
+        }
+        .result-box-3 strong { display: block; font-size: 1.1rem; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="intro" class="container active">
+        <h2>สร้างโปรไฟล์นักแสดง 🎬🐾</h2>
+        <p>ขอทำความรู้จักว่าที่ซุปตาร์ก่อนเริ่มควิซนะ!</p>
+        
+        <label class="file-upload">
+            <input type="file" accept="image/*" id="dogPhoto" onchange="previewImage(event)">
+            <span id="uploadText">📸 กดเพื่ออัปโหลดรูปน้องหมา</span>
+            <img id="imagePreview" class="preview-image" src="" alt="Preview">
+            <div id="uploadSuccess" class="upload-success">แตะที่รูปเพื่อเปลี่ยนรูปใหม่</div>
+        </label>
+
+        <div class="input-group">
+            <label>ชื่อน้องหมา *</label>
+            <input type="text" id="dogName" class="input-field" placeholder="เช่น โบ้, ลัคกี้, เต้าหู้">
+        </div>
+
+        <div class="input-group">
+            <label>อายุน้องหมา *</label>
+            <div class="age-container">
+                <select id="dogAgeYear" class="input-field">
+                    <option value="" disabled selected>เลือกปี</option>
+                    <option value="0">0 ปี</option>
+                    <option value="1">1 ปี</option>
+                    <option value="2">2 ปี</option>
+                    <option value="3">3 ปี</option>
+                    <option value="4">4 ปี</option>
+                    <option value="5">5 ปี</option>
+                    <option value="6">6 ปี</option>
+                    <option value="7">7 ปี</option>
+                    <option value="8">8 ปี</option>
+                    <option value="9">9 ปี</option>
+                    <option value="10">10+ ปี</option>
+                </select>
+                <select id="dogAgeMonth" class="input-field">
+                    <option value="" disabled selected>เลือกเดือน</option>
+                    <option value="0">0 เดือน</option>
+                    <option value="1">1 เดือน</option>
+                    <option value="2">2 เดือน</option>
+                    <option value="3">3 เดือน</option>
+                    <option value="4">4 เดือน</option>
+                    <option value="5">5 เดือน</option>
+                    <option value="6">6 เดือน</option>
+                    <option value="7">7 เดือน</option>
+                    <option value="8">8 เดือน</option>
+                    <option value="9">9 เดือน</option>
+                    <option value="10">10 เดือน</option>
+                    <option value="11">11 เดือน</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>สายพันธุ์ *</label>
+            <input type="text" id="dogBreed" class="input-field" placeholder="เช่น ชิวาวา, โกลเด้น, หมาพันทาง">
+        </div>
+
+        <div class="input-group">
+            <label>น้ำหนัก: <span id="weightDisplay">10.0</span> กก.</label>
+            <input type="range" id="dogWeight" min="1.0" max="40.0" step="0.5" value="10.0" oninput="updateWeightDisplay(this.value)">
+        </div>
+        <div class="input-group">
+            <label>โรคประจำตัว <span style="font-weight: 300; opacity: 0.7;">(ถ้าไม่มีให้ใส่ -)</span></label>
+            <input type="text" id="dogDisease" class="input-field" placeholder="เช่น โรคผิวหนัง, โรคข้อ">
+        </div>
+
+        <div class="input-group">
+            <label>อาหารที่กินประจำตอนนี้ *</label>
+            <input type="text" id="dogFood" class="input-field" placeholder="ยี่ห้อ หรือ สูตรอาหาร">
+        </div>
+
+        <button type="button" class="primary-btn" onclick="startQuiz()">เริ่มแคสติ้งบทบาทเลย! ✨</button>
+    </div>
+
+    <div id="q1" class="container">
+        <h2>1. เวลาคุณกำลังกินข้าว หรือกินขนม <span class="display-dog-name">น้องหมา</span> จะ...</h2>
+        <button type="button" class="choice-btn" onclick="nextQuestion(1, 'A')">นั่งจ้องหน้าน้ำลายสอ กดดันแบบนิ่งๆ</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(1, 'B')">เอาคางมาเกยตัก ทำตาปริบๆ ขอชิมด้วย</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(1, 'C')">นอนรออยู่ข้างเท้าเงียบๆ เผื่อมีของตก</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(1, 'D')">ตะกุยตะกาย ส่งเสียงร้อง จะกินด้วยให้ได้!</button>
+    </div>
+    <div id="q2" class="container">
+        <h2>2. เวลาทำของพัง หรือทำผิด <span class="display-dog-name">น้องหมา</span> จะแสดงอาการยังไง?</h2>
+        <button type="button" class="choice-btn" onclick="nextQuestion(2, 'A')">นั่งนิ่งๆ หน้าตึง ทำเหมือนไม่มีอะไรเกิดขึ้น</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(2, 'B')">หูลู่ หางตก ทำหน้าจ๋อยสุดๆ จนด่าไม่ลง</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(2, 'C')">แกล้งตาย หรือนอนหงายโชว์พุงยอมแพ้แต่โดยดี</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(2, 'D')">วิ่งหนีหน้าตั้ง แถมคาบหลักฐานติดปากไปด้วย!</button>
+    </div>
+    <div id="q3" class="container">
+        <h2>3. ถ้ามีคนแปลกหน้าหรือคนส่งพัสดุมาหน้าบ้าน...</h2>
+        <button type="button" class="choice-btn" onclick="nextQuestion(3, 'A')">เห่าเสียงดัง ขู่ปกป้องบ้านไว้ก่อน!</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(3, 'B')">วิ่งไปรับหน้า หางกระดิกดิ๊กๆ ต้อนรับทุกคน</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(3, 'C')">แอบดูอยู่ห่างๆ หรือหลบอยู่หลังขาเจ้าของ</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(3, 'D')">กระโดดใส่ ตะกุยรั้วด้วยความตื่นเต้นจนห้ามไม่อยู่</button>
+    </div>
+    <div id="q4" class="container">
+        <h2>4. ท่านอนประจำของ <span class="display-dog-name">น้องหมา</span> คือ...</h2>
+        <button type="button" class="choice-btn" onclick="nextQuestion(4, 'A')">นอนยืดตัวยาวขวางประตู หรือขวางทางเดิน</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(4, 'B')">เบียดตัวมานอนซบ นอนเกยเจ้าของตลอดเวลา</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(4, 'C')">ขดตัวกลมเป็นโดนัทอยู่ในที่นอนของตัวเอง</button>
+        <button type="button" class="choice-btn" onclick="nextQuestion(4, 'D')">นอนหงายเงิบ อ้าซ่าโชว์พุง หมดสภาพ</button>
+    </div>
+
+    <div id="bridge" class="container">
+        <h2>🎉 แคสติ้งเสร็จเรียบร้อย! 🎬</h2>
+        <p>อยากหาเพื่อนหรือคนที่ปรึกษาเรื่องโฮ่ง ๆ มั้ย<br>แวะสแกน QR Code เข้า OpenChat <strong>[ชื่อกลุ่ม]</strong> ก่อนได้นะ!</p>
+        
+        <img src="qr-code.jpg" alt="QR Code OpenChat" style="width: 200px; height: 200px; object-fit: cover; border-radius: 15px; margin: 0 auto 20px; display: block; border: 2px solid #E0D8C3; padding: 10px; background-color: #FFF;">
+        
+        <div style="margin-top: -10px; margin-bottom: 20px;">
+            <a href="ใส่_URL_กลุ่ม_OpenChat_ที่นี่" target="_blank" style="font-size: 0.85rem; color: #8F7B61; text-decoration: underline;">หรือคลิกที่นี่เพื่อเข้ากลุ่ม</a>
+        </div>
+        
+        <button type="button" class="primary-btn" onclick="showResult()">เปิดบทนักแสดงของฉันเลย ✨</button>
+    </div>
+
+    <div id="result" class="container">
+        
+        <div id="capture-area">
+            <div class="bg-dog-pattern pattern-1">🐶</div>
+            <div class="bg-dog-pattern pattern-2">🐶</div>
+            <div class="bg-dog-pattern pattern-3">🐶</div>
+            <div class="bg-dog-pattern pattern-4">🐶</div>
+
+            <div class="result-box-1">
+                <div class="hole"></div>
+                <div class="title-name"><span id="res-name">น้องหมา</span> is......</div>
+                <div class="title-role" id="res-title">บทบาท</div>
+                
+                <div class="result-image-wrapper">
+                    <img id="res-photo" src="https://via.placeholder.com/200x200?text=No+Image" alt="Dog Photo">
+                    <div class="sticker">🐕</div>
+                </div>
+            </div>
+
+            <div class="result-box-2" id="res-desc">
+                คำอธิบายบุคลิกตัวละครจะมาแสดงตรงนี้
+            </div>
+
+            <div class="result-box-3">
+                <strong>วิธีการเอาใจ:</strong>
+                <span id="res-tips">ทริคจะแสดงตรงนี้</span>
+            </div>
+        </div>
+
+        <div style="padding: 0 20px;">
+            <button type="button" class="secondary-btn" onclick="downloadImage()">📸 บันทึกรูปลงเครื่อง</button>
+            <a href="ใส่_URL_กลุ่ม_OpenChat_ที่นี่" class="primary-btn" target="_blank">จอย OpenChat คลิก!</a>
+        </div>
+    </div>
+
+    <script>
+        let userAnswers = [];
+        // สร้างตัวแปรเก็บข้อมูล (ใช้ Key ชื่อเดิมเพื่อให้ส่งเข้า Google Sheet เก่าได้เลยโดยไม่ต้องแก้ Apps Script)
+        let dogProfile = { name: "", age: "", breed: "", disease:"", weight: "", food: "", imageDataUrl: "" };
+
+        function updateWeightDisplay(val) { document.getElementById('weightDisplay').innerText = val; }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    dogProfile.imageDataUrl = e.target.result;
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('uploadText').style.display = 'none';
+                    document.getElementById('uploadSuccess').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function startQuiz() {
+            let nameInput = document.getElementById('dogName').value.trim();
+            let breedInput = document.getElementById('dogBreed').value.trim();
+            let diseaseInput = document.getElementById('dogDisease').value.trim() || "-";
+            let foodInput = document.getElementById('dogFood').value.trim();
+            let yearSelect = document.getElementById('dogAgeYear').value;
+            let monthSelect = document.getElementById('dogAgeMonth').value;
+
+            if (!dogProfile.imageDataUrl || nameInput === "" || breedInput === "" || foodInput === "" || yearSelect === "" || monthSelect === "") {
+                alert("โฮ่ง! 🐾 กรุณาอัปโหลดรูปและกรอกข้อมูลน้องหมาให้ครบทุกช่องก่อนเริ่มควิซนะฮะ");
+                return; 
+            }
+
+            dogProfile.name = nameInput;
+            let ageString = "";
+            if(yearSelect > 0) ageString += yearSelect + " ปี ";
+            if(monthSelect > 0) ageString += monthSelect + " เดือน";
+            if(yearSelect == 0 && monthSelect == 0) ageString = "ไม่ถึง 1 เดือน";
+            
+            dogProfile.age = ageString.trim();
+            dogProfile.breed = breedInput;
+            dogProfile.disease = diseaseInput;
+            dogProfile.weight = document.getElementById('dogWeight').value;
+            dogProfile.food = foodInput;
+
+            if(dogProfile.imageDataUrl) {
+                document.getElementById('res-photo').src = dogProfile.imageDataUrl;
+            }
+
+            let nameDisplays = document.querySelectorAll('.display-dog-name');
+            nameDisplays.forEach(el => { el.innerText = dogProfile.name; });
+
+            document.getElementById('intro').classList.remove('active');
+            document.getElementById('q1').classList.add('active');
+        }
+
+        function nextQuestion(currentQ, answer) {
+            userAnswers.push(answer);
+            document.getElementById('q' + currentQ).classList.remove('active');
+            
+            let nextQ = currentQ + 1;
+            let nextElement = document.getElementById('q' + nextQ);
+            
+            if (nextElement) {
+                nextElement.classList.add('active');
+            } else {
+                document.getElementById('bridge').classList.add('active');
+                
+                let modeAnswer = calculateMode(userAnswers);
+                let resultType = modeAnswer === 'A' ? "จ่าฝูง" : modeAnswer === 'B' ? "นางเอก" : modeAnswer === 'C' ? "บอดี้การ์ด" : "ตัวตึง";
+
+                // จัดข้อมูลเตรียมส่ง (Key ใช้ชื่อเดิมทั้งหมดเพื่อไม่ให้ Google Sheet พัง)
+                let dataToSave = {
+                    name: dogProfile.name, 
+                    age: dogProfile.age, 
+                    breed: dogProfile.breed,
+                    weight: dogProfile.weight, 
+                    food: dogProfile.food, 
+                    disease: dogProfile.disease, 
+                    result: resultType
+                };
+
+                // วางลิงก์ Google Sheet Script URL ของแกตรงนี้ (ใช้ลิงก์เดิมของแมวได้เลยถ้าอยากให้ข้อมูลรวมกัน)
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbx2BV0NXpelcwUSiqzLuwOsBpJ4x5o6y3tdqwo3Qu21ZfxeXSQUiq81dETEatQoli-s/exec';
+
+                fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(dataToSave)
+                })
+                .then(response => console.log('ส่งข้อมูลเข้า Sheets สำเร็จ!'))
+                .catch(error => console.error('Error!', error.message));
+            }
+        }
+
+        function showResult() {
+            document.getElementById('bridge').classList.remove('active');
+            document.getElementById('result').classList.add('active');
+            
+            let modeAnswer = calculateMode(userAnswers);
+            displayResultContent(modeAnswer);
+        }
+
+        // แก้บั๊กกลืนคำตอบด้วยการดึงข้อมูลมาทำสำเนา (tempArr)
+        function calculateMode(arr) {
+            let tempArr = [...arr]; 
+            return tempArr.sort((a,b) => tempArr.filter(v => v===a).length - tempArr.filter(v => v===b).length).pop();
+        }
+
+        function displayResultContent(type) {
+            document.getElementById('res-name').innerText = dogProfile.name;
+            const title = document.getElementById('res-title');
+            const desc = document.getElementById('res-desc');
+            const tips = document.getElementById('res-tips');
+
+            if (type === 'A') {
+                title.innerText = "จ่าฝูงมาดขรึม";
+                desc.innerText = "ดูน่าเกรงขาม ปกป้องบ้านเก่งสุดๆ รักเจ้าของมากนะ แต่แค่แสดงออกไม่ค่อยเก่ง หน้าตึงใส่นิดหน่อยแต่มุมอ่อนโยนก็มีเพียบ!";
+                tips.innerText = "หาของเล่นให้กัดแทะ และลูบหัวชื่นชมบ่อยๆ";
+            } else if (type === 'B') {
+                title.innerText = "ลูกคุณหนูขี้อ้อน";
+                desc.innerText = "ติดสกินชิพอันดับหนึ่ง! ขาดความรักไม่ได้เลย ชอบมาคลอเคลีย ทำตาปริบๆ ใส่ แค่เห็นหน้ามนุษย์ก็ใจละลายพร้อมถวายขนมให้แล้ว";
+                tips.innerText = "กอดเยอะๆ อุ้มบ่อยๆ และให้ขนมตอนที่ทำตัวน่ารัก";
+            } else if (type === 'C') {
+                title.innerText = "บอดี้การ์ดแสนดี";
+                desc.innerText = "ตามติดทุกฝีก้าว ซื่อสัตย์ภักดีเป็นที่หนึ่ง ชอบนั่งเฝ้าหน้าห้องน้ำ เป็นเซฟโซนที่แสนอบอุ่นและพึ่งพาได้เสมอ";
+                tips.innerText = "ให้พื้นที่เค้าได้อยู่ใกล้ๆ คุณ และพาไปเดินเล่นเปลี่ยนบรรยากาศ";
+            } else {
+                title.innerText = "ตัวตึงจอมทำลายล้าง";
+                desc.innerText = "พลังงานล้นเหลือ วิ่งสู้ฟัด พังทุกอย่างที่ขวางหน้า! สร้างเรื่องปวดหัวให้ทุกวัน แต่ก็สร้างเสียงหัวเราะและความรักให้ครอบครัวแบบสุดๆ";
+                tips.innerText = "พาไปวิ่งเล่นออกกำลังกายให้หมดแรง จะได้กลับมาหลับปุ๋ย";
+            }
+        }
+
+        function downloadImage() {
+            window.scrollTo(0, 0); 
+            
+            const captureArea = document.getElementById('capture-area');
+            
+            html2canvas(captureArea, {
+                backgroundColor: '#FDFBF7', 
+                scale: 2, 
+                useCORS: true 
+            }).then(canvas => {
+                let link = document.createElement('a');
+                link.download = dogProfile.name + '-result.png'; 
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error("แคปรูปไม่สำเร็จ: ", err);
+                alert("โฮ่ง! เกิดข้อผิดพลาดตอนเซฟรูปฮะ รบกวนเจ้าของแคปหน้าจอแทนไปก่อนน้า 🐾");
+            });
+        }
+    </script>
+</body>
+</html>
